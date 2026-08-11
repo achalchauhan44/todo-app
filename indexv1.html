@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simpli To Do</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Caveat:wght@600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4ecdd;
+    --paper-shadow: #e6d9c2;
+    --ink: #2b2420;
+    --ink-soft: #6b5f52;
+    --rule-line: #d8c9ad;
+    --terracotta: #c1622d;
+    --terracotta-dark: #9c4c20;
+    --sage: #5f7a5e;
+    --sage-soft: #dbe4d6;
+    --danger: #a63d40;
+    --stamp: #b23b3b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(193,98,45,0.06), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(95,122,94,0.07), transparent 45%),
+      var(--paper);
+    font-family: 'Literata', serif;
+    color: var(--ink);
+    padding: 48px 20px 80px;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  .page {
+    max-width: 620px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  header .eyebrow {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--terracotta-dark);
+    transform: rotate(-2deg);
+    display: inline-block;
+    margin-bottom: -6px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 44px;
+    letter-spacing: -0.5px;
+    margin: 0;
+  }
+
+  header .sub {
+    color: var(--ink-soft);
+    font-size: 15px;
+    font-style: italic;
+    margin-top: 6px;
+  }
+
+  .composer {
+    background: #fffdf8;
+    border: 1px solid var(--rule-line);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    gap: 10px;
+    box-shadow: 0 10px 24px -14px rgba(43,36,32,0.35), 0 1px 0 rgba(255,255,255,0.6) inset;
+    margin-bottom: 36px;
+  }
+
+  .composer input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'Literata', serif;
+    font-size: 17px;
+    color: var(--ink);
+    outline: none;
+    padding: 8px 6px;
+  }
+
+  .composer input::placeholder {
+    color: #b0a48f;
+    font-style: italic;
+  }
+
+  .composer button {
+    background: var(--terracotta);
+    color: #fff8ef;
+    border: none;
+    border-radius: 9px;
+    padding: 0 22px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .composer button:hover {
+    background: var(--terracotta-dark);
+    transform: translateY(-1px);
+  }
+
+  .composer button:active { transform: translateY(0); }
+
+  #taskList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .task {
+    background: #fffdf8;
+    border: 1px solid var(--rule-line);
+    border-left: 5px solid var(--terracotta);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 16px -12px rgba(43,36,32,0.4);
+    animation: settle 0.35s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .task.done {
+    border-left-color: var(--sage);
+    background: #fbf9f2;
+  }
+
+  .task.done::after {
+    content: "done";
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--stamp);
+    border: 3px solid var(--stamp);
+    border-radius: 8px;
+    padding: 0 10px;
+    position: absolute;
+    bottom: 6px;
+    right: 14px;
+    transform: rotate(-6deg);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  @keyframes settle {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .task-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .task-title {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 500;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .task.done .task-title {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+    text-decoration-color: var(--sage);
+  }
+
+  .task-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .task-actions button {
+    border: 1px solid transparent;
+    font-family: 'Literata', serif;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .task-actions .btn-toggle {
+    color: var(--sage);
+    border-color: var(--sage-soft);
+    background: var(--sage-soft);
+  }
+  .task-actions .btn-toggle:hover { background: var(--sage); color: #fff; }
+
+  .task.done .task-actions .btn-toggle {
+    color: var(--terracotta-dark);
+    border-color: #f0dcc9;
+    background: #f0dcc9;
+  }
+  .task.done .task-actions .btn-toggle:hover { background: var(--terracotta); color: #fff; }
+
+  .task-actions .btn-delete {
+    color: var(--danger);
+    border-color: #f1dcdc;
+    background: #f8ecec;
+  }
+  .task-actions .btn-delete:hover { background: var(--danger); color: #fff; }
+
+  .task-actions .btn-edit {
+    color: var(--ink-soft);
+    border-color: var(--rule-line);
+    background: #f2ecdf;
+  }
+  .task-actions .btn-edit:hover { background: var(--ink-soft); color: #fff; }
+
+  .task-actions .btn-save {
+    color: #fff;
+    background: var(--sage);
+    border-color: var(--sage);
+  }
+  .task-actions .btn-save:hover { background: #4c6b4c; }
+
+  .task-actions .btn-cancel {
+    color: var(--ink-soft);
+    background: transparent;
+    border-color: var(--rule-line);
+  }
+  .task-actions .btn-cancel:hover { background: var(--rule-line); }
+
+  .edit-input {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    color: var(--ink);
+    background: #fffef9;
+    border: 1px dashed var(--terracotta);
+    border-radius: 6px;
+    padding: 6px 8px;
+    flex: 1;
+    outline: none;
+    min-width: 0;
+  }
+
+  .meta {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--rule-line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  .meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .meta .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ink-soft);
+    opacity: 0.5;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--ink-soft);
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    transform: rotate(-1deg);
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <span class="eyebrow">a little ledger of things to do</span>
+      <h1>Simpli To Do</h1>
+      <div class="sub">write it down, cross it off</div>
+    </header>
+
+    <div class="composer">
+      <input type="text" id="titleInput" placeholder="What needs doing?" onkeydown="if(event.key==='Enter') addTask()">
+      <button onclick="addTask()">Add entry</button>
+    </div>
+
+    <ul id="taskList"></ul>
+  </div>
+
+<script>
+  const API_URL = "http://127.0.0.1:8000/tasks";
+  let editingId = null;
+
+  function formatDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return d.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    month: "short", day: "numeric",
+    hour: "numeric", minute: "2-digit"
+  });
+}
+
+  async function loadTasks() {
+    const response = await fetch(API_URL);
+    const tasks = await response.json();
+
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    if (tasks.length === 0) {
+      list.innerHTML = `<li class="empty">nothing on the ledger yet</li>`;
+      return;
+    }
+
+    tasks.forEach(task => {
+      const li = document.createElement("li");
+      li.className = "task" + (task.completed ? " done" : "");
+
+      const created = formatDate(task.created_at);
+      const updated = formatDate(task.updated_at);
+      const completed = formatDate(task.completed_at);
+
+      let metaHTML = `<span>created ${created}</span>`;
+      if (updated) metaHTML += `<span><span class="dot"></span>updated ${updated}</span>`;
+      if (completed) metaHTML += `<span><span class="dot"></span>completed ${completed}</span>`;
+
+      const isEditing = task.id === editingId;
+
+      if (isEditing) {
+        li.innerHTML = `
+          <div class="task-top">
+            <input type="text" class="edit-input" value="${escapeHTML(task.title)}">
+            <div class="task-actions">
+              <button class="btn-save">Save</button>
+              <button class="btn-cancel">Cancel</button>
+            </div>
+          </div>
+          <div class="meta">${metaHTML}</div>
+        `;
+
+        const editInput = li.querySelector(".edit-input");
+        li.querySelector(".btn-save").onclick = () => saveEdit(task, editInput.value);
+        li.querySelector(".btn-cancel").onclick = () => { editingId = null; loadTasks(); };
+        editInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") saveEdit(task, editInput.value);
+          if (e.key === "Escape") { editingId = null; loadTasks(); }
+        });
+        editInput.focus();
+        editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+      } else {
+        li.innerHTML = `
+          <div class="task-top">
+            <div class="task-title">${escapeHTML(task.title)}</div>
+            <div class="task-actions">
+              <button class="btn-edit">Edit</button>
+              <button class="btn-toggle">${task.completed ? "Undo" : "Done"}</button>
+              <button class="btn-delete">Delete</button>
+            </div>
+          </div>
+          <div class="meta">${metaHTML}</div>
+        `;
+
+        li.querySelector(".btn-edit").onclick = () => { editingId = task.id; loadTasks(); };
+        li.querySelector(".btn-toggle").onclick = () => toggleComplete(task);
+        li.querySelector(".btn-delete").onclick = () => deleteTask(task.id);
+      }
+
+      list.appendChild(li);
+    });
+  }
+
+  function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function addTask() {
+    const input = document.getElementById("titleInput");
+    const title = input.value.trim();
+    if (!title) return;
+
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title })
+    });
+
+    input.value = "";
+    loadTasks();
+  }
+
+  async function saveEdit(task, newTitle) {
+    const title = newTitle.trim();
+    if (!title) return;
+
+    await fetch(`${API_URL}/${task.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, completed: task.completed })
+    });
+
+    editingId = null;
+    loadTasks();
+  }
+
+  async function toggleComplete(task) {
+    await fetch(`${API_URL}/${task.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: task.title, completed: !task.completed })
+    });
+    loadTasks();
+  }
+
+  async function deleteTask(id) {
+    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    loadTasks();
+  }
+
+  loadTasks();
+</script>
+</body>
+</html>
